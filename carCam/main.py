@@ -1,15 +1,19 @@
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
+
 import time
 import cv2
 import numpy as np
 import imutils
 from libRoad import webCam
 import serial
+import signal, sys
 
 video_out = "output/"
 webcam_size  = (1920, 1080)
-rotatePIC = 0
+rotatePIC = 180
 frameRate = 10.0
-comPort = "COM4"   #PC的TTL2USB port
+comPort = "COM5"   #PC的TTL2USB port
 baudRate = 4800
 
 def getGPS():
@@ -44,24 +48,32 @@ def getGPS():
     print(gpsE, gpsN)
 	
     return ynDATA, gpsE, gpsN
-				
-if __name__ == "__main__":
 
+def signal_handler(sig, frame):
+    print('You pressed Ctrl+C!')
+    fo.write(str(frameID) + "|" + dataE + "/" + dataN + "\n" )
+    sys.exit(0)
+	
+if __name__ == "__main__":
+    signal.signal(signal.SIGINT, signal_handler)
+	
     cam = webCam(id=0, size=webcam_size)
     serial = serial.Serial(comPort, baudRate)
     out = ''
     dataE = dataN = "0"
+    frameID = 0
+    lastE, lastN = "", ""
     if(cam.working() is True):
         
-		
         if(video_out!=""):
+            filename = video_out+str(time.time())
             (width, height) = cam.camRealSize()
             fourcc = cv2.VideoWriter_fourcc(*'MJPG')
             out = cv2.VideoWriter(video_out+str(time.time())+".avi",fourcc, frameRate, (int(width),int(height)))
-		
+            fo = open(filename + ".gps", "w")
         print("Video size is ", (width, height))
         while True:
-            hasFrame, frame = cam.takepic(rotate=180, vflip=False, hflip=False, resize=None, savePath=None)
+            hasFrame, frame = cam.takepic(rotate=rotatePIC, vflip=False, hflip=False, resize=None, savePath=None)
             ynDATA, tmpE, tmpN = getGPS()
             if(ynDATA == True):
                 dataE, dataN = tmpE, tmpN
@@ -75,7 +87,13 @@ if __name__ == "__main__":
             cv2.imshow("Frame", imutils.resize(frame, width=850) )
             if(video_out!=""):
                 out.write(frame)
-			
-            cv2.waitKey(1)
+                if(lastE != dataE or lastN!=dataN):
+                    fo.write(str(frameID) + "|" + dataE + "/" + dataN + "\n" )
+
+                lastE, lastN = dataE, dataN
+                frameID += 1
+				 
+            inkey = cv2.waitKey(1)
+
     else:
         print("Web camera is not working.")	
