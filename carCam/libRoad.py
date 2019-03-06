@@ -4,11 +4,11 @@ import cv2
 import numpy as np
 
 class webCam:
-    def __init__(self, id, size=(320, 240)):
-        if(id==0):
-            self.cam = cv2.VideoCapture(cv2.CAP_DSHOW)
-        else:
-            self.cam = cv2.VideoCapture(cv2.CAP_DSHOW+id)
+    def __init__(self, id, size=(1920, 1080)):
+        #if(id==0):
+        #self.cam = cv2.VideoCapture(0)
+        self.cam = cv2.VideoCapture(cv2.CAP_DSHOW+id)
+
         self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, size[0])
         self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, size[1])
 

@@ -1,0 +1,5 @@
+classes= 1
+train  = /home/digits/works/YOLO.projects/road_defect_edge/cfg.road_edge.tiny/train.txt
+valid  = /home/digits/works/YOLO.projects/road_defect_edge/cfg.road_edge.tiny/test.txt
+names = /home/digits/works/YOLO.projects/road_defect_edge/cfg.road_edge.tiny/obj.names
+backup = /home/digits/works/YOLO.projects/road_defect_edge/cfg.road_edge.tiny/weights/
