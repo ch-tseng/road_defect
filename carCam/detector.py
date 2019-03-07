@@ -9,6 +9,9 @@ from libRoad import webCam
 import serial
 import signal, sys
 from yoloOpencv import opencvYOLO
+import gmaps
+from gmplot import gmplot
+gmaps.configure(api_key='AIzaSyCbQibjl5FKhsQCFz8lj1ad3qru1bUCdrU')
 
 cam_id = 0
 video_file_play = "1550799908.6317935.avi"
@@ -71,7 +74,7 @@ def getGPS(frameid = 0):
 				
         gpsE = "E {}-{}-{}-{}".format(dataE1, dataE2, dataE3, dataE4)
         gpsN = "N {}-{}-{}-{}".format(dataN1, dataN2, dataN3, dataN4)
-        print(gpsE, gpsN)
+
     else:
         ynDATA = False
         for i in range(0, len(gps_frames)-1):
@@ -80,6 +83,17 @@ def getGPS(frameid = 0):
 
                 gpsE, gpsN = gps_frames[i][1].split("/")
                 ynDATA = True
+
+        #now_loc = (float(gpsE), float(gpsN))
+        gmap = gmplot.GoogleMapPlotter(float(gpsE), float(gpsN), 13)
+        # Marker
+        #hidden_gem_lat, hidden_gem_lon = 37.770776, -122.461689
+        #gmap.marker(hidden_gem_lat, hidden_gem_lon, 'cornflowerblue')
+
+        # Draw
+        gmap.draw("my_map.html")
+
+        print(gpsE, gpsN)
 				
     return ynDATA, gpsE, gpsN
 
