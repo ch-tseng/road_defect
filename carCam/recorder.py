@@ -57,7 +57,7 @@ def signal_handler(sig, frame):
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
 	
-    cam = webCam(id=0, size=webcam_size)
+    cam = webCam(id=0, videofile="", size=webcam_size)
     serial = serial.Serial(comPort, baudRate)
     out = ''
     dataE = dataN = "0"
