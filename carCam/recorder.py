@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-import time
+import time, datetime
 import cv2
 import numpy as np
 import imutils
@@ -9,7 +9,7 @@ from libRoad import webCam
 import serial
 import signal, sys
 
-video_out = "output/"
+video_out = "output\\"
 webcam_size  = (1920, 1080)
 rotatePIC = 0
 frameRate = 10.0
@@ -19,8 +19,10 @@ baudRate = 4800
 def getGPS():
     out = ''
     ynDATA = False
-    dataE1, dataE2, dataE3, dataE4 = 0, 0, 0, 0
-    dataN1, dataN2, dataN3, dataN4 = 0, 0, 0, 0
+    dataE1, dataE2 = 0.0, 0.0
+    dataN1, dataN2 = 0.0, 0.0
+    gpsE, gpsN = 0.0, 0.0
+    str_gpsE, str_gpsN = "", ""
 	
     try:
         while(serial.inWaiting()):
@@ -34,24 +36,29 @@ def getGPS():
         print(out)
 
 
-        if(gpsdata[0] == "$GPGGA"):
-            dataE = gpsdata[4]
-            dataN = gpsdata[2]
+        if(gpsdata[0] == "$GPRMC"):
+            dataE = gpsdata[5]
+            dataN = gpsdata[3]
             if(len(dataE)>=10):
-                dataE1, dataE2, dataE3, dataE4 = dataE[:3], dataE[3:5], dataE[6:8], dataE[8:10]
+                dataE1, dataE2 = float(dataE[:3]), float(dataE[3:])
+                gpsE = round(dataE1 + dataE2/60, 4)
                 ynDATA = True
             if(len(dataN)>=9):
-                dataN1, dataN2, dataN3, dataN4 = dataN[:2], dataN[2:4], dataN[5:7], dataN[7:9]
+                dataN1, dataN2 = float(dataN[:2]), float(dataN[2:])
+                gpsN = round(dataN1 + dataN2/60, 4)
 				
-    gpsE = "E {}-{}-{}-{}".format(dataE1, dataE2, dataE3, dataE4)
-    gpsN = "N {}-{}-{}-{}".format(dataN1, dataN2, dataN3, dataN4)
+    str_gpsE = str(gpsE)
+    str_gpsN = str(gpsN)
     print(gpsE, gpsN)
 	
-    return ynDATA, gpsE, gpsN
+    return ynDATA, str_gpsE, str_gpsN
 
 def signal_handler(sig, frame):
     print('You pressed Ctrl+C!')
-    fo.write(str(frameID) + "|" + dataE + "/" + dataN + "\n" )
+    now = datetime.datetime.now()
+    time_data = "{}{}{}{}{}{}".format(now.year,str(now.month).zfill(2),str(now.day).zfill(2),\
+        str(now.hour).zfill(2),str(now.minute).zfill(2),str(now.second).zfill(2))
+    fo.write(str(frameID) + "|" + time_data + "|" + dataN + "," + dataE + "\n" )
     sys.exit(0)
 	
 if __name__ == "__main__":
@@ -63,17 +70,21 @@ if __name__ == "__main__":
     dataE = dataN = "0"
     frameID = 0
     lastE, lastN = "", ""
-    if(cam.working() is True):
-        
+    if(cam.working() is True):        
         if(video_out!=""):
-            filename = video_out+str(time.time())
+            now = datetime.datetime.now()
+            filename = "{}年{}月{}日{}點{}分{}秒".format(now.year,now.month,now.day,str(now.hour).zfill(2),str(now.minute).zfill(2),str(now.second).zfill(2))
             (width, height) = cam.camRealSize()
             fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-            out = cv2.VideoWriter(video_out+str(time.time())+".avi",fourcc, frameRate, (int(width),int(height)))
-            fo = open(filename + ".gps", "w")
+            out = cv2.VideoWriter(video_out+filename+".avi",fourcc, frameRate, (int(width),int(height)))
+            fo = open(video_out+filename + ".gps", "w")
         print("Video size is ", (width, height))
         while True:
             hasFrame, frame = cam.takepic(rotate=rotatePIC, vflip=False, hflip=False, resize=None, savePath=None)
+            now = datetime.datetime.now()
+            time_data = "{}{}{}{}{}{}".format(now.year,str(now.month).zfill(2),str(now.day).zfill(2),\
+                str(now.hour).zfill(2),str(now.minute).zfill(2),str(now.second).zfill(2))
+			
             ynDATA, tmpE, tmpN = getGPS()
             if(ynDATA == True):
                 dataE, dataN = tmpE, tmpN
@@ -83,12 +94,12 @@ if __name__ == "__main__":
                 cv2.waitKey(3000)
                 break
 
-            cv2.putText(frame, dataE+" / "+dataN, (280,60), cv2.FONT_HERSHEY_COMPLEX, 1.2, (0,0,0), 2)
+            #cv2.putText(frame, dataN+" , "+dataE, (280,60), cv2.FONT_HERSHEY_COMPLEX, 1.2, (0,0,0), 2)
             cv2.imshow("Frame", imutils.resize(frame, width=850) )
             if(video_out!=""):
                 out.write(frame)
                 if(lastE != dataE or lastN!=dataN):
-                    fo.write(str(frameID) + "|" + dataE + "/" + dataN + "\n" )
+                    fo.write(str(frameID) + "|" + time_data + "|" + dataN + "," + dataE + "\n" )
 
                 lastE, lastN = dataE, dataN
                 frameID += 1
