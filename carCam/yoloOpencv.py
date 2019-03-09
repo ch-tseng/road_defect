@@ -161,6 +161,8 @@ class opencvYOLO():
         #label = 'Inference time: %.2f ms' % (t * 1000.0 / cv2.getTickFrequency())
 
     def listLabels(self):
+        classes = self.classes
+        bbox = []
         for i in self.indices:
             i = i[0]
             box = self.bbox[i]
@@ -168,9 +170,11 @@ class opencvYOLO():
             top = box[1]
             width = box[2]
             height = box[3]
-
-            classes = self.classes
+            bbox.append((classes[self.classIds[i]], self.scores[i], [left,top,width,height]) )
+  
             print("Label:{}, score:{}, left:{}, top:{}, right:{}, bottom:{}".format(classes[self.classIds[i]], self.scores[i], left, top, left + width, top + height) )
+
+        return bbox
 
     def list_Label(self, id):
         box = self.bbox[id]
