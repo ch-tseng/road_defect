@@ -16,7 +16,7 @@ from urllib.request import urlopen
 #--------------------------------------------------
 gm_apikey = 'AIzaSyBPxuoRArkJBsCVa_e0DCEzo9UuPP-r_Bk'
 
-video_type = 0  # 0--> cam_id  1--> video_file_play
+video_type = 1  # 0--> cam_id  1--> video_file_play
 cam_id = 0
 cam_size  = (1920, 1080)  #(1920, 1080)
 
@@ -24,13 +24,14 @@ rotatePIC = 0
 frameRate = 5.0
 video_file_play = "1550799908.6317935.avi"
 gps_file_play = "1550799908.6317935.gps"
-video_upload_size = (960, 540)
+video_upload_size = cam_size
 video_yolo_size = (960, 540)
 
 write_video_out = True  #output video or not
 video_out_type = 2  #0--> original video, 1--> obj detected video, 2--> desktop video
 video_out = "output\\"  #write video to this folder
-defect_out = "defect"  #write defect image to this folder for upload
+defect_detect_out = "defect\\detect\\"  #write defect image to this folder for upload
+defect_original_out = "defect\\original\\"  #write defect image to this folder for upload
  
 
 comPort = "COM5"   #PC的TTL2USB port
@@ -134,8 +135,8 @@ def log_defect(img, img_defect, gps_data):
     filename_defect = "d_{}_{}_{}.jpg".format(gps_data[0],gps_data[1],log_time)
     filename_org = "o_{}_{}_{}.jpg".format(gps_data[0],gps_data[1],log_time)
     #print(filename_defect)	
-    cv2.imwrite(defect_out + "\\" + filename_defect, img_defect )
-    cv2.imwrite(defect_out + "\\" + filename_org, img)	
+    cv2.imwrite(defect_detect_out + filename_defect, img_defect )
+    cv2.imwrite(defect_original_out + filename_org, img)	
 
 def desktop_bg(img, gps, txt_display):
     img = imutils.resize(img, width=desktop_frame_size[0], height=desktop_frame_size[1])
@@ -251,10 +252,10 @@ if __name__ == "__main__":
                 defect_lists = yolo.listLabels()
                 log_defect(frame_upload, frame, (dataN, dataE))
                 txt_display = "發現疑似道路缺陷！"
-
+				
             frame_desktop = desktop_bg(frame, (dataN, dataE), txt_display)
             cv2.imshow("Frame", frame_desktop )
-            frame_upload = 	imutils.resize(frame, width=video_upload_size[0], height=video_upload_size[1])	
+            frame_upload = 	imutils.resize(frame_org, width=video_upload_size[0], height=video_upload_size[1])	
 			
             if(write_video_out is True):
                 if(video_out_type==0):
