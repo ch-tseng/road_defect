@@ -14,8 +14,6 @@ from PIL import ImageFont, ImageDraw, Image
 from urllib.request import urlopen
 
 #--------------------------------------------------
-gm_apikey = 'AIzaSyBPxuoRArkJBsCVa_e0DCEzo9UuPP-r_Bk'
-
 video_type = 1  # 0--> cam_id  1--> video_file_play
 cam_id = 0
 cam_size  = (1920, 1080)  #(1920, 1080)
