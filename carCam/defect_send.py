@@ -65,6 +65,9 @@ if __name__ == "__main__":
             conn_status = False
             print('connection closed')
             if(upload_status is True):
-                os.remove(defect_org_path + file)
-				
+                try:
+                    os.remove(defect_org_path + file)
+                except:
+                    pass
+					
             time.sleep(1)
