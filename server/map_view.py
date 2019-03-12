@@ -4,22 +4,31 @@ from flask_googlemaps import Map
 import os
 import cv2
 
-gps_data = "20190301.defect"
+static_folder = "20190301"
+target_folder = "20190301/"
+
+#-----------------------------------------
+gps_data = target_folder + "defects.log"
 
 f = open(gps_data, 'r')
 
 gpsList = []
 for gps_line in f:
     print(gps_line)
-    date_time, gps_data, obj_detect, defect_img_path, icon_img_path = gps_line.split("|")
+    date_time, gps_data, obj_detect, defect_img_path = gps_line.split("|")
     lat,lng = gps_data.split(',')
-    filename = os.path.basename(defect_img_path)
-    icon_img_path = icon_img_path.replace("\n","")
-    gpsList.append({'icon':'http://maps.google.com/mapfiles/ms/icons/green-dot.png', 'lat':float(lat), 'lng':float(lng), 'infobox':'<img src="'+icon_img_path+'" />' })
+    defect_img_path = defect_img_path.replace("\n","")
+
+    org_img = target_folder+'originals/'+defect_img_path
+    preview_img = target_folder+'previews/'+defect_img_path
+    #filename = os.path.basename(defect_img_path)
+    gpsList.append({'icon':'http://maps.google.com/mapfiles/ms/icons/green-dot.png',\
+        'lat':float(lat), 'lng':float(lng), 'infobox':'<a href="'+org_img+'" target="_blank">\
+        <img src="'+preview_img+'" height=60 width=90'+' /></a>' })
 
 print(gpsList[0])
 
-app = Flask(__name__, template_folder=".", static_url_path = "/ap_defect_icons", static_folder = "ap_defect_icons")
+app = Flask(__name__, template_folder=".", static_url_path="/"+static_folder, static_folder=static_folder)
 app.config['GOOGLEMAPS_KEY'] = "AIzaSyBPxuoRArkJBsCVa_e0DCEzo9UuPP-r_Bk"
 GoogleMaps(app)
 

@@ -7,15 +7,25 @@ import time, os
 import imutils
 
 dataset_images = "defect/waiting/"
+map_defects = "20190301/"
+#----------------------------------------------------------
 cfg_path = "cfg.road_server/yolov3.cfg"
 weights_path = "cfg.road_server/weights/yolov3_20000.weights"
 class_path = "cfg.road_server/obj.data"
-defect_info_write = "20190301.defect"
-map_defects = "map_defects/"
-preview_icon_path = "ap_defect_icons/"
+
+defect_info_write = map_defects+"defects.log"
+preview_icon_path = map_defects+"previews/"
+original_path = map_defects+"originals/"
 icon_preview_width = 90
+#---------------------------------------------------------
+if not os.path.exists(map_defects):
+    os.makedirs(map_defects)
 
+if not os.path.exists(preview_icon_path):
+    os.makedirs(preview_icon_path)
 
+if not os.path.exists(original_path):
+    os.makedirs(original_path)
 
 def obj_detect(img):
     start_time = time.time()
@@ -29,7 +39,7 @@ def obj_detect(img):
     objString = ""
     for category, score_cat, bounds in results:
         cat = category.decode("utf-8")
-        sco = str(score_cat)
+        sco = str(round(score_cat,2))
         print("A:", cat, sco)
         objString += cat+":"+sco+","
         print("B:", objString)
@@ -69,14 +79,15 @@ for file in os.listdir(dataset_images):
             print("RECV:", obj)
             if obj != "":
                 img_filename = "defect_" + filename
-                print("write to ", map_defects + img_filename + ".jpg")
-                cv2.imwrite(map_defects + img_filename + ".jpg", imutils.resize(img2, width=800))
-                print("{}/{}/{} {}:{}:{}|{},{}|{}|{}|{}".format\
-                    (year , month , day , hour , minute , second , gpsN , gpsE, obj, map_defects + img_filename + ".jpg", preview_icon_path+img_filename + ".jpg"))
-                f.write("{}/{}/{} {}:{}:{}|{},{}|{}|{}|{}\n".format\
-                    (year , month , day , hour , minute , second , gpsN , gpsE, obj, map_defects + img_filename + ".jpg", preview_icon_path+img_filename + ".jpg"))
+                #print("write to ", map_defects + img_filename + ".jpg")
+                #cv2.imwrite(map_defects + img_filename + ".jpg", imutils.resize(img2, width=800))
+                print("{}/{}/{} {}:{}:{}|{},{}|{}|{}".format\
+                    (year , month , day , hour , minute , second , gpsN , gpsE, obj, img_filename + ".jpg"))
+                f.write("{}/{}/{} {}:{}:{}|{},{}|{}|{}\n".format\
+                    (year , month , day , hour , minute , second , gpsN , gpsE, obj, img_filename + ".jpg"))
 
                 cv2.imwrite(preview_icon_path+img_filename + ".jpg", imutils.resize(img, width=icon_preview_width))
+                cv2.imwrite(original_path+img_filename + ".jpg", img)
 
         except:
             print("process {} error.".format(file))
