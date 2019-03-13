@@ -9,23 +9,25 @@ from libRoad import webCam
 import serial
 import signal, sys
 from yoloOpencv import opencvYOLO
-from gmplot import gmplot
+#from gmplot import gmplot
 from PIL import ImageFont, ImageDraw, Image
 from urllib.request import urlopen
 
 #--------------------------------------------------
+gm_apikey = 'AIzaSyBPxuoRArkJBsCVa_e0DCEzo9UuPP-r_Bk'
+
 video_type = 1  # 0--> cam_id  1--> video_file_play
 cam_id = 0
 cam_size  = (1920, 1080)  #(1920, 1080)
 
 rotatePIC = 0
 frameRate = 5.0
-video_file_play = "1550799908.6317935.avi"
-gps_file_play = "1550799908.6317935.gps"
+video_file_play = "videos\\1550799908.6317935.avi"
+gps_file_play = "videos\\2019年3月11日07點38分47秒.gps"
 video_upload_size = cam_size
 video_yolo_size = (960, 540)
 
-write_video_out = True  #output video or not
+write_video_out = False  #output video or not
 video_out_type = 2  #0--> original video, 1--> obj detected video, 2--> desktop video
 video_out = "output\\"  #write video to this folder
 defect_detect_out = "defect\\detect\\"  #write defect image to this folder for upload
@@ -50,7 +52,7 @@ def conn_test():
     try:
         response = urlopen('http://www.google.com', timeout=1)
         return True
-    except urllib2.URLError as err:
+    except:
         return False	
 	
 	
@@ -78,11 +80,11 @@ def getGPS(frameid = 0):
                 dataN = gpsdata[3]
                 if(len(dataE)>=10):
                     dataE1, dataE2 = float(dataE[:3]), float(dataE[3:])
-                    gpsE = dataE1 + dataE2/60
+                    gpsE = round(dataE1 + dataE2/60,4)
                     ynDATA = True
                 if(len(dataN)>=9):
                     dataN1, dataN2 = float(dataN[:2]), float(dataN[2:])
-                    gpsN = dataN1 + dataN2/60
+                    gpsN = round(dataN1 + dataN2/60,4)
                 
         #str_gpsE = str(gpsE)
         #str_gpsN = str(gpsN)
@@ -97,18 +99,18 @@ def getGPS(frameid = 0):
                 ynDATA = True
 
         #now_loc = (float(gpsE), float(gpsN))
-        gmap = gmplot.GoogleMapPlotter(float(gpsN), float(gpsE), 18)
+        #gmap = gmplot.GoogleMapPlotter(float(gpsN), float(gpsE), 18)
         print("GPS:", float(gpsN), float(gpsE))
         if(float(gpsN)>0) and float(gpsE)>0:
             # Marker
             print(gpsN, gpsE)
             #gmap.plot(float(gpsN), float(gpsE), 'cornflowerblue', edge_width=10)
-            gmap.marker(float(gpsN), float(gpsE), color='#000000', c=None, title="Defect")
+            #gmap.marker(float(gpsN), float(gpsE), color='#000000', c=None, title="Defect")
             #gmap.scatter(float(gpsE), float(gpsN),'#FF6666', edge_width=10)
             # Draw
             #gmap.coloricon = "pointer.png"
-            gmap.apikey = gm_apikey
-            gmap.draw("my_map.html")
+            #gmap.apikey = gm_apikey
+            #gmap.draw("my_map.html")
 
             #print(gpsN, gpsE)
                 
