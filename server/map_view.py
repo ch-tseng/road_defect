@@ -4,7 +4,7 @@ from flask_googlemaps import Map
 import os
 import cv2
 
-
+gmap_key = ""
 static_folder = "20190301"
 target_folder = "20190301/"
 
@@ -26,6 +26,12 @@ for gps_line in f:
     for d_obj in objs:
         if(len(d_obj)>0):
             d_classes = d_obj.split(':')
+            txt_classes = ""
+            for ii, class_name in enumerate(d_classes):
+                if(ii>0):
+                    txt_classes += ','+class_name
+                else:
+                    txt_classes += class_name
 
     d_class = d_classes[0]
     if(d_class=='D12'):
@@ -45,13 +51,13 @@ for gps_line in f:
     preview_img = target_folder+'previews/'+defect_img_path
     #filename = os.path.basename(defect_img_path)
     gpsList.append({'icon':icon_path,\
-        'lat':float(lat), 'lng':float(lng), 'infobox':'<a href="'+org_img+'" target="_blank">\
+        'lat':float(lat), 'lng':float(lng), 'infobox':'<b>'+txt_classes+'</b><BR><a href="'+org_img+'" target="_blank">\
         <img src="'+preview_img+'" height=60 width=90'+' /></a>' })
 
 print(gpsList[0])
 
 app = Flask(__name__, template_folder=".", static_url_path="/"+static_folder, static_folder=static_folder)
-app.config['GOOGLEMAPS_KEY'] = "AIzaSyBPxuoRArkJBsCVa_e0DCEzo9UuPP-r_Bk"
+app.config['GOOGLEMAPS_KEY'] = gmap_key
 GoogleMaps(app)
 
 @app.route("/")
@@ -59,8 +65,8 @@ def mapview():
     # creating a map in the view
     sndmap = Map(
         identifier="sndmap",
-        lat=24.7356,
-        lng=120.9027,
+        lat=float(lat),
+        lng=float(lng),
         markers=gpsList,
         style="height:900px;width:1200px;margin:0;"
     )
