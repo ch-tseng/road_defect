@@ -39,7 +39,7 @@ def obj_detect(img):
     objString = ""
     for category, score_cat, bounds in results:
         cat = category.decode("utf-8")
-        sco = str(round(score_cat,2))
+        sco = str(int(score_cat*100))+'%'
         print("A:", cat, sco)
         objString += cat+":"+sco+","
         print("B:", objString)
@@ -77,6 +77,8 @@ for file in os.listdir(dataset_images):
             img = cv2.imread(dataset_images + file)
             (img2, obj) = obj_detect(img)
             print("RECV:", obj)
+            os.remove(dataset_images + file)
+
             if obj != "":
                 img_filename = "defect_" + filename
                 #print("write to ", map_defects + img_filename + ".jpg")
