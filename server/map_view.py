@@ -4,7 +4,7 @@ from flask_googlemaps import Map
 import os
 import cv2
 
-gmap_key = ""
+gmap_key = "AIzaSyCx3bhltZ8FNhSyOtR8jxnqO5OcMm_J9OE"
 static_folder = "20190301"
 target_folder = "20190301/"
 
@@ -49,10 +49,10 @@ for gps_line in f:
 
     org_img = target_folder+'originals/'+defect_img_path
     preview_img = target_folder+'previews/'+defect_img_path
+    url_link = "javascript: openwindow('" + org_img + "')"
     #filename = os.path.basename(defect_img_path)
     gpsList.append({'icon':icon_path,\
-        'lat':float(lat), 'lng':float(lng), 'infobox':'<b>'+txt_classes+'</b><BR><a href="'+org_img+'" target="_blank">\
-        <img src="'+preview_img+'" height=60 width=90'+' /></a>' })
+        'lat':float(lat), 'lng':float(lng), 'infobox':'<b>'+txt_classes+'</b><BR><a href="'+url_link+'"><img src="'+preview_img+'" height=60 width=90'+' /></a>' })
 
 print(gpsList[0])
 
