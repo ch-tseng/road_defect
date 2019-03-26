@@ -4,7 +4,7 @@ from flask_googlemaps import Map
 import os
 import cv2
 
-gmap_key = "AIzaSyCx3bhltZ8FNhSyOtR8jxnqO5OcMm_J9OE"
+gmap_key = ""
 static_folder = "20190315"
 target_folder = "20190315/"
 
